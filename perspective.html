@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html style="height: 100vh; width: 100vw; display: flex;">
+
+<head>
+    <title>Canvas Cartesian Plane Example</title>
+</head>
+
+<body style="flex: 1;display: flex; justify-content: center; align-items: center;">
+    <canvas id="myCanvas" width="500" height="500"></canvas>
+
+    <script>
+        const length = (a, b) => Math.sqrt(a ** 2 + b ** 2)
+        const force_angle = (o, c) => Math.atan2(o.x-c.x, o.y-c.y)
+        const radian_angle = (a) => a * (Math.PI/180)
+        const rotate_line = (x, y, m, a) => {
+            const dx = x + (m * Math.cos(radian_angle(a)))
+            const dy = y - (m * Math.sin(radian_angle(a)))
+            return { x: dx, y: dy }
+        }
+        class Square {
+            constructor(x, y, size) {
+                this.x = x;
+                this.y = y;
+                this.size = size;
+            }
+
+            draw(ctx) {
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                const sa = 45
+                ctx.moveTo(this.x, this.y);
+                const d1 = rotate_line(this.x, this.y, this.size, sa+(90*0))
+                // ctx.lineTo(d1.x, d1.y);
+                const d2 = rotate_line(d1.x, d1.y, this.size, sa+(90*1))
+                // ctx.lineTo(d2.x, d2.y);
+                const d3 = rotate_line(d2.x, d2.y, this.size, sa+(90*2))
+                // ctx.lineTo(d3.x, d3.y);
+                const d4 = rotate_line(d3.x, d3.y, this.size, sa+(90*3))
+                // ctx.lineTo(d4.x, d4.y);
+                const m = [
+                    [ d1.x, d1.y, 0 ], 
+                    [ d2.x, d2.y, 0 ],
+                    [ d3.x, d3.y, 0 ],
+                    [ d4.x, d4.y, 0 ]
+                ]
+                console.log(m)
+                for (let i = 0; i < m.length; i++) {
+                    ctx.lineTo(m[i][0], m[i][1]);
+                }
+                /**
+                 *   [ d1.x, d1.y, 0 ] 
+                 *   [ d2.x, d2.y, 0 ]
+                 *   [ d3.x, d3.y, 0 ]
+                 *   [ d4.x, d4.y, 0 ]
+                 **/
+                // ctx.closePath();
+                ctx.stroke();
+                ctx.strokeStyle = 'red';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.x + this.size, this.y);
+                ctx.lineTo(this.x + this.size, this.y - this.size);
+                ctx.lineTo(this.x, this.y - this.size);
+                ctx.closePath();
+                ctx.stroke();
+                const mb = [
+                    [this.x, this.y],
+                    [this.x + this.size, this.y],
+                    [this.x + this.size, this.y - this.size],
+                    [this.x, this.y - this.size]
+                ]
+                console.log(mb)
+            }
+        }
+
+        // Get the canvas element and its context
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas background
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw Cartesian plane
+        ctx.strokeStyle = 'gray';
+        ctx.lineWidth = 1;
+
+        // Draw x-axis
+        ctx.beginPath();
+        ctx.moveTo(0, canvas.height / 2);
+        ctx.lineTo(canvas.width, canvas.height / 2);
+        ctx.stroke();
+
+        // Draw y-axis
+        ctx.beginPath();
+        ctx.moveTo(canvas.width / 2, 0);
+        ctx.lineTo(canvas.width / 2, canvas.height);
+        ctx.stroke();
+
+        // Adjust this value for the z-axis
+        const zAxisScale = 0.5;
+        ctx.strokeStyle = 'blue';
+        ctx.beginPath();
+        ctx.moveTo(canvas.width / 2 - zAxisScale * canvas.width / 2, canvas.height / 2 + zAxisScale * canvas.height / 2);
+        ctx.lineTo(canvas.width / 2 + zAxisScale * canvas.width / 2, canvas.height / 2 - zAxisScale * canvas.height / 2);
+        ctx.stroke();
+
+        // Draw markers and numbers on x-axis
+        const xMarkers = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5];
+        const xMarkerSpacing = canvas.width / (xMarkers.length - 1);
+        ctx.fillStyle = 'black';
+        ctx.font = '12px sans-serif';
+        xMarkers.forEach((marker, index) => {
+            const x = index * xMarkerSpacing;
+            ctx.beginPath();
+            ctx.moveTo(x, canvas.height / 2 - 5);
+            ctx.lineTo(x, canvas.height / 2 + 5);
+            ctx.stroke();
+            ctx.fillText(marker.toString(), x - 6, canvas.height / 2 + 18);
+        });
+
+        // Draw markers and numbers on y-axis
+        const yMarkers = [5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5];
+        const yMarkerSpacing = canvas.height / (yMarkers.length - 1);
+        yMarkers.forEach((marker, index) => {
+            const y = index * yMarkerSpacing;
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2 - 5, y);
+            ctx.lineTo(canvas.width / 2 + 5, y);
+            ctx.stroke();
+            ctx.fillText(marker.toString(), canvas.width / 2 - 20, y + 4);
+        });
+
+        // Draw markers and numbers on z-axis
+        const zMarkers = [5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5];
+        const zMarkerSpacing = canvas.width * zAxisScale / (zMarkers.length - 1);
+        zMarkers.forEach((marker, index) => {
+            const z = (((zMarkers.length - 1) / -2) + index) * zMarkerSpacing;
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2 + z - 3, canvas.height / 2 - z - 3);
+            ctx.lineTo(canvas.width / 2 + z + 3, canvas.height / 2 - z + 3);
+            ctx.stroke();
+            ctx.fillText(marker.toString(), canvas.width / 2 + z + 8, canvas.height / 2 - z + 4);
+        });
+
+        // Create and draw the square using the Square class
+        const squareSize = 100;
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const squareX = centerX;
+        const squareY = centerY;
+
+        const square = new Square(squareX, squareY, squareSize);
+        square.draw(ctx);
+    </script>
+</body>
+
+</html>
