@@ -2,156 +2,145 @@
 
 <!DOCTYPE html>
 <html style="height: 100vh; width: 100vw; display: flex">
-  <head>
-    <title>Canvas Cartesian Plane Example</title>
-  </head>
 
-  <body
-    style="flex: 1; display: flex; justify-content: center; align-items: center"
-  >
-    <canvas id="myCanvas" width="600" height="600"></canvas>
+<head>
+  <title>Canvas Cartesian Plane Example</title>
+</head>
 
-    <script>
-      const length = (a, b) => Math.sqrt(a ** 2 + b ** 2);
-      const force_angle = (o, c) => Math.atan2(o.x - c.x, o.y - c.y);
-      const radian_angle = (a) => a * (Math.PI / 180);
-      const cos = (a) => Math.cos(radian_angle(a));
-      const sin = (a) => Math.sin(radian_angle(a));
-      const tan = (a) => Math.tan(radian_angle(a));
+<body style="flex: 1; display: flex; justify-content: center; align-items: center">
+  <canvas id="myCanvas" width="600" height="600"></canvas>
 
-      class Matrix {
-        constructor(values, size) {
-          this.values = values;
-          this.x = canvas.width / 2;
-          this.y = canvas.height / 2;
-          this.z = 0;
-          this.size = size;
-        }
+  <script>
+    const length = (a, b) => Math.sqrt(a ** 2 + b ** 2);
+    const force_angle = (o, c) => Math.atan2(o.x - c.x, o.y - c.y);
+    const radian_angle = (a) => a * (Math.PI / 180);
+    const cos = (a) => Math.cos(radian_angle(a));
+    const sin = (a) => Math.sin(radian_angle(a));
+    const tan = (a) => Math.tan(radian_angle(a));
+    // perspective angle
+    const px = 0;
+    const py = 45;
+    const pz = 0;
 
-        draw(ctx) {
-          ctx.strokeStyle = "red";
-          ctx.lineWidth = 2;
-          let za = 0;
-          let xa = 0;
-          ctx.beginPath();
-          ctx.moveTo(this.x, this.y);
-          for (let i = 0; i < this.values.length; i++) {
-            const x = this.values[i][0] * this.size;
-            const y = this.values[i][1] * this.size;
-            let rx = x;
-            let ry = y;
-            rx = x * cos(za) - y * sin(za);
-            ry = x * sin(za) + y * cos(za);
-            this.x += rx;
-            this.y -= ry;
-            ctx.lineTo(this.x, this.y);
-          }
-          ctx.stroke();
-        }
+    class Matrix {
+      constructor(ctx, values, size) {
+        this.values = values;
+        this.x = canvas.width / 2;
+        this.y = canvas.height / 2;
+        this.z = 0;
+        this.size = size;
+        this.ctx = ctx
       }
 
-      // Get the canvas element and its context
-      const canvas = document.getElementById("myCanvas");
-      const ctx = canvas.getContext("2d");
-      const zAxisScale = 0;
+      reset() {
+        ctx.clearRect(0, 0, 600, 600)
+        const zAxisScale = 0;
+        // Set canvas background
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Set canvas background
-      ctx.fillStyle = "white";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // Draw Cartesian plane
+        ctx.strokeStyle = "gray";
+        ctx.lineWidth = 1;
 
-      // Draw Cartesian plane
-      ctx.strokeStyle = "gray";
-      ctx.lineWidth = 1;
-
-      // Draw x-axis
-      const x1 = 0;
-      const x2 = 600;
-      const y1 = 300;
-      const y2 = 300;
-      const xe = (x2 - x1) * cos(45) - (y2 - y1) * sin(45);
-      const ye = (x2 - x1) * sin(45) + (y2 - y1) * cos(45);
-      ctx.beginPath();
-      console.log(x1, y1);
-      console.log(x2, y2);
-      console.log(xe, ye)
-      const cx = x2 - xe;
-      const cy = y2 - ye;
-      console.log(x1 + cx, y1 - cy)
-      console.log(x2 - cx, y2 + cy)
-      ctx.moveTo(x1, y1 - cy);
-      ctx.lineTo(x2, y2 + cy);
-      ctx.stroke();
-
-      // Draw y-axis
-      ctx.beginPath();
-      ctx.moveTo(canvas.width / 2, 0);
-      ctx.lineTo(canvas.width / 2, canvas.height);
-      ctx.stroke();
-
-      // Adjust this value for the z-axis
-      ctx.strokeStyle = "blue";
-      ctx.beginPath();
-      ctx.moveTo(
-        canvas.width / 2 - (zAxisScale * canvas.width) / 2,
-        canvas.height / 2 + (zAxisScale * canvas.height) / 2
-      );
-      ctx.lineTo(
-        canvas.width / 2 + (zAxisScale * canvas.width) / 2,
-        canvas.height / 2 - (zAxisScale * canvas.height) / 2
-      );
-      ctx.stroke();
-
-      // Draw markers and numbers on x-axis
-      const xMarkers = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5];
-      const xMarkerSpacing = canvas.width / (xMarkers.length - 1);
-      ctx.fillStyle = "black";
-      ctx.font = "12px sans-serif";
-      xMarkers.forEach((marker, index) => {
-        const x = index * xMarkerSpacing;
+        // Draw x-axis
+        const x1 = 0;
+        const x2 = 600;
+        const y1 = 300;
+        const y2 = 300;
+        const xe = (x2 - x1) * cos(45) - (y2 - y1) * sin(45);
+        const ye = (x2 - x1) * sin(45) + (y2 - y1) * cos(45);
         ctx.beginPath();
-        ctx.moveTo(x, canvas.height / 2 - 5);
-        ctx.lineTo(x, canvas.height / 2 + 5);
+        const cx = x2 - xe;
+        const cy = y2 - ye;
+        ctx.moveTo(x1, y1 - cy);
+        ctx.lineTo(x2, y2 + cy);
         ctx.stroke();
-        ctx.fillText(marker.toString(), x - 6, canvas.height / 2 + 18);
-      });
 
-      // Draw markers and numbers on y-axis
-      const yMarkers = [5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5];
-      const yMarkerSpacing = canvas.height / (yMarkers.length - 1);
-      yMarkers.forEach((marker, index) => {
-        const y = index * yMarkerSpacing;
+        // Draw y-axis
         ctx.beginPath();
-        ctx.moveTo(canvas.width / 2 - 5, y);
-        ctx.lineTo(canvas.width / 2 + 5, y);
+        ctx.moveTo(canvas.width / 2, 0);
+        ctx.lineTo(canvas.width / 2, canvas.height);
         ctx.stroke();
-        ctx.fillText(marker.toString(), canvas.width / 2 - 20, y + 4);
-      });
 
-      // Draw markers and numbers on z-axis
-      const zMarkers = [5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5];
-      const zMarkerSpacing =
-        (canvas.width * zAxisScale) / (zMarkers.length - 1);
-      zMarkers.forEach((marker, index) => {
-        const z = ((zMarkers.length - 1) / -2 + index) * zMarkerSpacing;
+        // Draw markers and numbers on x-axis
+        const xMarkers = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5];
+        const xMarkerSpacing = canvas.width / (xMarkers.length - 1);
+        ctx.fillStyle = "black";
+        ctx.font = "12px sans-serif";
+        xMarkers.forEach((marker, index) => {
+          const x = index * xMarkerSpacing;
+          ctx.beginPath();
+          ctx.moveTo(x, canvas.height / 2 - 5);
+          ctx.lineTo(x, canvas.height / 2 + 5);
+          ctx.stroke();
+          ctx.fillText(marker.toString(), x - 6, canvas.height / 2 + 18);
+        });
+
+        // Draw markers and numbers on y-axis
+        const yMarkers = [5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5];
+        const yMarkerSpacing = canvas.height / (yMarkers.length - 1);
+        yMarkers.forEach((marker, index) => {
+          const y = index * yMarkerSpacing;
+          ctx.beginPath();
+          ctx.moveTo(canvas.width / 2 - 5, y);
+          ctx.lineTo(canvas.width / 2 + 5, y);
+          ctx.stroke();
+          ctx.fillText(marker.toString(), canvas.width / 2 - 20, y + 4);
+        });
+      }
+
+      draw(px, py) {
+        const ctx = this.ctx
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 2;
+        let za = 0;
+        let xa = 0;
         ctx.beginPath();
-        ctx.moveTo(canvas.width / 2 + z - 3, canvas.height / 2 - z - 3);
-        ctx.lineTo(canvas.width / 2 + z + 3, canvas.height / 2 - z + 3);
+        ctx.moveTo(this.x, this.y);
+        for (let i = 0; i < this.values.length; i++) {
+          const x = this.values[i][0] * this.size;
+          const y = this.values[i][1] * this.size;
+          let rx = x;
+          let ry = y;
+          rx = x * cos(py / 2) - y * sin(px / 2);
+          ry = x * sin(py / 2) + y * cos(px / 2);
+          const x1 = this.x
+          const y1 = this.y
+          this.x += rx;
+          this.y -= ry;
+          const cx = this.x - x1
+          const cy = this.y - y1
+          let m = cy / cx
+          m = isFinite(m) ? m.toFixed(1) : 0
+          ctx.fillStyle = 'blue';
+          ctx.fillText(m, this.x-(cx/2), this.y-(cy/2));
+          ctx.lineTo(this.x, this.y);
+        }
         ctx.stroke();
-        ctx.fillText(
-          marker.toString(),
-          canvas.width / 2 + z + 8,
-          canvas.height / 2 - z + 4
-        );
-      });
+      }
+    }
 
-      const values = [
-        [1, 0],
-        [0, 1],
-        [-1, 0],
-        [0, -1],
-      ];
-      const m = new Matrix(values, 60);
-      m.draw(ctx);
-    </script>
-  </body>
+    // Get the canvas element and its context
+    const canvas = document.getElementById("myCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const values = [
+      [1, 0],
+      [0, 1],
+      [-1, 0],
+      [0, -1],
+    ];
+    const m = new Matrix(ctx, values, 60);
+    let i = 0
+    setInterval(() => {
+      m.reset()
+      m.draw(0, i);
+      i += 1 % 360
+    }, 60000 / 360 / 8)
+    // m.reset()
+    // m.draw(0, 45);
+  </script>
+</body>
+
 </html>
