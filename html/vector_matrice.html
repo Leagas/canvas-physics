@@ -103,8 +103,8 @@
           const y = this.values[i][1] * this.size;
           let rx = x;
           let ry = y;
-          rx = x * cos(py / 2) - y * sin(px / 2);
-          ry = x * sin(py / 2) + y * cos(px / 2);
+          rx = x * cos(py) - y * sin(px);
+          ry = x * sin(py) + y * cos(px);
           const x1 = this.x
           const y1 = this.y
           this.x += rx;
